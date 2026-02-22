@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Cyber Cipher Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+  <div class="background-grid"></div>
+  <div class="page">
+    <header class="header">
+      <div>
+        <h1 class="title">Cyber Cipher Lab</h1>
+        <p class="subtitle">
+          Experiment with classic ciphers and decoding techniques.
+          <a href="{{ url_for('learn') }}" class="subtitle-link">Learn more</a>
+        </p>
+      </div>
+      <div class="badge">Cyber Security Sandbox</div>
+    </header>
+
+    <main class="main">
+      <section class="panel panel--primary">
+        <form method="post" class="cipher-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="cipher">Cipher Technique</label>
+              <select id="cipher" name="cipher" required>
+                {% for c in ciphers %}
+                <option value="{{ c.id }}" {% if form.cipher==c.id %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Mode</label>
+              <div class="mode-toggle">
+                <label>
+                  <input type="radio" name="mode" value="encode" {% if form.mode!='decode' %}checked{% endif %} />
+                  <span>Encode</span>
+                </label>
+                <label>
+                  <input type="radio" name="mode" value="decode" {% if form.mode=='decode' %}checked{% endif %} />
+                  <span>Decode</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row dynamic-row" data-for="xor perm rsa">
+            <div class="form-group form-group--wide">
+              <label for="text" id="text-label">Text</label>
+              <textarea id="text" name="text" rows="3"
+                placeholder="Enter plaintext or ciphertext here...">{{ form.text or "" }}</textarea>
+            </div>
+          </div>
+
+          <div class="form-row dynamic-row" data-for="xor perm">
+            <div class="form-group">
+              <label for="key">Key</label>
+              <input id="key" name="key" type="text" value="{{ form.key or '' }}"
+                placeholder="Shared secret key" />
+              <p class="hint xor-hint">XOR key can be any string, reused for encode/decode.</p>
+              <p class="hint perm-hint">Permutation key should be a permutation of digits, e.g. 012, 201, 0312.</p>
+            </div>
+          </div>
+
+          <div class="form-row dynamic-row" data-for="rsa">
+            <div class="form-group">
+              <label for="exponent">Exponent (e or d)</label>
+              <input id="exponent" name="exponent" type="number" inputmode="numeric"
+                value="{{ form.exponent or '' }}" placeholder="Public or private exponent" />
+            </div>
+            <div class="form-group">
+              <label for="modulus">Modulus (n)</label>
+              <input id="modulus" name="modulus" type="number" inputmode="numeric"
+                value="{{ form.modulus or '' }}" placeholder="RSA modulus n" />
+            </div>
+          </div>
+
+          <div class="form-row dynamic-row" data-for="md5">
+            <div class="form-group form-group--wide">
+              <label for="hash_value">MD5 Hash (3-char string)</label>
+              <input id="hash_value" name="hash_value" type="text" spellcheck="false"
+                value="{{ form.hash_value or '' }}"
+                placeholder="e.g. 1340ec9c15a1484e054e28282f2ba8db" />
+              <p class="hint">
+                This demo brute-forces all 3-character combinations using letters and digits and compares their MD5
+                hashes.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Run Cipher</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel panel--secondary">
+        <h2 class="panel-title">Output</h2>
+        {% if error %}
+        <div class="alert alert--error">{{ error }}</div>
+        {% endif %}
+
+        {% if result %}
+        <pre class="result-block">{{ result }}</pre>
+        <form method="post" action="{{ url_for('export') }}" class="export-form">
+          <input type="hidden" name="cipher" value="{{ form.cipher or '' }}">
+          <input type="hidden" name="mode" value="{{ form.mode or 'encode' }}">
+          <input type="hidden" name="text" value="{{ form.text or '' }}">
+          <input type="hidden" name="key" value="{{ form.key or '' }}">
+          <input type="hidden" name="exponent" value="{{ form.exponent or '' }}">
+          <input type="hidden" name="modulus" value="{{ form.modulus or '' }}">
+          <input type="hidden" name="hash_value" value="{{ form.hash_value or '' }}">
+          <button type="submit" class="btn-secondary">Download as .txt</button>
+        </form>
+        {% else %}
+        <p class="placeholder">
+          Results will appear here after you run a cipher.
+        </p>
+        {% endif %}
+      </section>
+
+      <section class="info-grid">
+        <article class="info-card">
+          <h3>XOR Cipher</h3>
+          <p>
+            A simple symmetric cipher that combines each bit of the plaintext with a key using exclusive-or (XOR).
+            Applying the same key twice returns the original text.
+          </p>
+        </article>
+        <article class="info-card">
+          <h3>Permutation Cipher</h3>
+          <p>
+            A transposition cipher that rearranges characters in fixed-sized blocks using a permutation key. The key
+            describes how positions are shuffled.
+          </p>
+        </article>
+        <article class="info-card">
+          <h3>RSA Cipher</h3>
+          <p>
+            A public-key cipher based on modular exponentiation. Encrypt with the public key, decrypt with the private
+            key (or vice versa for signing).
+          </p>
+        </article>
+        <article class="info-card">
+          <h3>MD5 Brute Force</h3>
+          <p>
+            Demonstrates how short secrets can be cracked by brute-forcing all possibilities and comparing their MD5
+            hashes, highlighting why strong passwords matter.
+          </p>
+        </article>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Built on classic Python crypto exercises.</span>
+      <span class="footer-dot">•</span>
+      <span>For educational cybersecurity practice only.</span>
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const cipherSelect = document.getElementById("cipher");
+      const modeInputs = document.querySelectorAll("input[name='mode']");
+      const dynamicRows = document.querySelectorAll(".dynamic-row");
+      const textLabel = document.getElementById("text-label");
+
+      function getSelectedMode() {
+        const mode = Array.from(modeInputs).find(m => m.checked);
+        return mode ? mode.value : "encode";
+      }
+
+      function updateVisibility() {
+        const cipher = cipherSelect.value;
+        const mode = getSelectedMode();
+
+        dynamicRows.forEach(row => {
+          const allowed = (row.getAttribute("data-for") || "").split(" ");
+          row.style.display = allowed.includes(cipher) ? "flex" : "none";
+        });
+
+        if (cipher === "md5") {
+          textLabel.textContent = "Text";
+        } else if (mode === "encode") {
+          textLabel.textContent = "Plaintext";
+        } else {
+          textLabel.textContent = "Ciphertext";
+        }
+      }
+
+      cipherSelect.addEventListener("change", updateVisibility);
+      modeInputs.forEach(input => input.addEventListener("change", updateVisibility));
+
+      updateVisibility();
+    })();
+  </script>
+</body>
+
+</html>
+

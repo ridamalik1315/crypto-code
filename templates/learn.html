@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8" />
+  <title>Learn | Cyber Cipher Lab</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+
+<body>
+  <div class="background-grid"></div>
+  <div class="page">
+    <header class="header">
+      <div>
+        <h1 class="title">Cipher Techniques</h1>
+        <p class="subtitle">
+          A quick primer on the algorithms used in the Cyber Cipher Lab.
+        </p>
+      </div>
+      <div class="badge">Learn Mode</div>
+    </header>
+
+    <main class="main">
+      <section class="panel panel--primary">
+        <h2 class="panel-title">How these ciphers work</h2>
+        <div class="info-grid">
+          <article class="info-card">
+            <h3>XOR Cipher</h3>
+            <p>
+              XOR (exclusive-or) is a very simple symmetric operation: if two input bits are the same, the result is
+              0; if they are different, the result is 1. To encrypt, we XOR each bit of the plaintext with a key; to
+              decrypt, we XOR the result with the same key again, which recovers the original text.
+            </p>
+            <p>
+              This is not secure on its own for real systems, but it is a great way to understand how stream ciphers
+              and one-time pads work.
+            </p>
+          </article>
+
+          <article class="info-card">
+            <h3>Permutation (Transposition) Cipher</h3>
+            <p>
+              A permutation cipher does not change the characters themselves; it only reorders them. We split the
+              message into blocks and rearrange the positions inside each block according to a numeric key such as
+              <code>2013</code>.
+            </p>
+            <p>
+              To decrypt, we apply the inverse permutation, putting each character back in its original position.
+              Modern block ciphers like AES also use permutations internally, combined with substitution steps.
+            </p>
+          </article>
+
+          <article class="info-card">
+            <h3>RSA Public-Key Cipher</h3>
+            <p>
+              RSA is an asymmetric cipher: encryption and decryption use different keys. A public key
+              <code>(e, n)</code> is used to encrypt, and a private key <code>(d, n)</code> is used to decrypt, where
+              <code>n = p × q</code> for large primes <code>p</code> and <code>q</code>.
+            </p>
+            <p>
+              Mathematically, encryption and decryption are just modular exponentiation:
+              <code>cipher = plain^e mod n</code> and <code>plain = cipher^d mod n</code>. The difficulty of factoring
+              <code>n</code> keeps the private key secure.
+            </p>
+          </article>
+
+          <article class="info-card">
+            <h3>MD5 and Brute-Force Cracking</h3>
+            <p>
+              MD5 is a cryptographic hash function that maps any input to a 128-bit hash. It is fast but no longer
+              considered secure due to collisions and its resistance to brute-force attacks being too low for modern
+              hardware.
+            </p>
+            <p>
+              In this project, we brute-force all possible 3-character strings made of letters and digits, hash each
+              one with MD5, and compare the result with a target hash. This illustrates how short, simple passwords
+              can be discovered by attackers.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel panel--secondary">
+        <h2 class="panel-title">Using this project</h2>
+        <p class="placeholder">
+          Head back to the main lab to experiment with encoding and decoding using these techniques.
+        </p>
+        <a href="{{ url_for('index') }}" class="btn-secondary" style="margin-top: 10px;">Back to lab</a>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>Educational use only &mdash; do not use these simplified examples to protect real secrets.</span>
+    </footer>
+  </div>
+</body>
+
+</html>
+
